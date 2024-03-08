@@ -1,4 +1,8 @@
+
 <div class="login-container">
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div>
         <label for="username">Username:</label>

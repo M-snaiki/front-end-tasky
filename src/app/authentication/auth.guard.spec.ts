@@ -1,17 +1,47 @@
 import { TestBed } from '@angular/core/testing';
-import { CanActivateFn } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { AuthGuard } from './auth.guard';
+import { AuthService } from './auth.service';
 
-import { authGuard } from './auth.guard';
-
-describe('authGuard', () => {
-  const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => authGuard(...guardParameters));
+describe('AuthGuard', () => {
+  let router: Router;
+  let authService: AuthService;
+  let authGuard: AuthGuard;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [RouterTestingModule],
+      providers: [
+        AuthGuard,
+        { provide: AuthService, useValue: { isLoggedIn: () => false } }
+      ]
+    });
+
+    router = TestBed.inject(Router);
+    authService = TestBed.inject(AuthService);
+    authGuard = TestBed.inject(AuthGuard);
   });
 
-  it('should be created', () => {
-    expect(executeGuard).toBeTruthy();
+  it('should redirect an unauthenticated user to the login page', () => {
+    spyOn(authService, 'isLoggedIn').and.returnValue(false);
+    spyOn(router, 'navigate');
+
+    const mockActivatedRouteSnapshot = {} as ActivatedRouteSnapshot;
+    const mockRouterStateSnapshot = {} as RouterStateSnapshot;
+
+    const result = authGuard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
+    expect(result).toBeFalse();
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('should allow an authenticated user to access the route', () => {
+    spyOn(authService, 'isLoggedIn').and.returnValue(true);
+
+    const mockActivatedRouteSnapshot = {} as ActivatedRouteSnapshot;
+    const mockRouterStateSnapshot = {} as RouterStateSnapshot;
+
+    const result = authGuard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
+    expect(result).toBeTrue();
   });
 });

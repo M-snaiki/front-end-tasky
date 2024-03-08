@@ -14,6 +14,6 @@ export class AuthService {
   }
   isLoggedIn(): boolean {
     let token = localStorage.getItem('token');
-    return !!token; // returns true if token exists, otherwise false
+    return !!token; 
   }
 }

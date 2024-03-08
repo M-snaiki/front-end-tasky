@@ -10,11 +10,12 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   
-  private authService!: AuthService
-  private router!: Router 
-  loginForm!: FormGroup;  
 
-  constructor(private formBuilder: FormBuilder,  authService: AuthService) { }
+  loginForm!: FormGroup;  
+  errorMessage: string = '';
+
+   constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) { }
+
 
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
@@ -33,7 +34,13 @@ export class LoginComponent {
             this.router.navigate(['/dashboard']);
         },
         error: (error) => {
-          alert('Login failed: ' + error.message);
+          if (error.status === 401) {
+            
+            this.errorMessage = 'Invalid username or password.';
+          } else {
+            
+            this.errorMessage = 'An error occurred. Please try again later.';
+          }
         }
     });
     }
